@@ -1,178 +1,85 @@
-" F2 NERDTreeToggle
-" F5 GoToFunction
-" F6 All Text Rearrange
-" F4 QuickFix
-" F10 Compile
-" F11 Compile and Run
-" F12 CompileMessages
-" zz, zt and zb
-" C-z Hold Vim, then "fg" go back to Vim
-" C-c == _esc
-set nocompatible              " be iMproved, required
-filetype off                  " required
+set nocompatible
 
 set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
-Plugin 'tpope/vim-commentary'
-Plugin 'bling/vim-airline'
-Plugin 'gmarik/vundle'
+
+set term=screen-256color
+
+call vundle#begin()
+Plugin 'gmarik/Vundle.vim' " Vundle
+Plugin 'bling/vim-airline' " Airline
+Plugin 'scrooloose/nerdtree' " NerdTree
+Plugin 'Xuyuanp/nerdtree-git-plugin' " NerdTree Git Plugin
+Plugin 'ctrlpvim/ctrlp.vim' " Control P
+Plugin 'tpope/vim-commentary' " Vim Comment
+Plugin 'tpope/vim-fugitive' " Vim Fugitive
+Plugin 'bufexplorer.zip' " Buf Explorer
+Plugin 'a.vim' " Switch header / source
+Plugin 'ErichDonGubler/vim-sublime-monokai'
+" Markdown and Others
 Plugin 'mzlogin/vim-markdown-toc'
 Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
-Plugin 'Valloric/YouCompleteMe'
-Plugin 'rdnetto/YCM-Generator'
-" Plugin 'isnowfy/python-vim-instant-markdown'
-" Plugin 'kien/rainbow_parentheses.vim'
-filetype plugin indent on
-" To ignore plugin indent changes, instead use:
-" filetype plugin on
-Bundle 'Markdown'
-Plugin 'vhda/verilog_systemverilog.vim'
-Bundle 'scrooloose/nerdtree'
 Bundle 'matrix.vim--Yang'
-" set fileencoding=ucs-bom, utf-8,cp936
-color satori
-set cindent
-set ai
-set shiftwidth=4
-set sts=4
-set tabstop=4
-set expandtab
-set guifont=Consolas:h14
-set nu
-set history=10000
-set nu
+Bundle 'Markdown'
+" Plugin 'Valloric/YouCompleteMe'
+" Plugin 'rdnetto/YCM-Generator'
+Plugin 'lifepillar/vim-cheat40'
+call vundle#end()
+
+filetype plugin indent on
 syntax on
-set ignorecase smartcase
+
+" Encoding
+set enc=utf-8
+set fencs=utf-8,ucs-bom,shift-jis,gb18030,gbk,gb2312,cp936
+
+" Theme
+if has('gui_running')
+  set background=dark
+  colorscheme solarized
+else
+  colorscheme sublimemonokai
+endif
+
+set tabstop=4 softtabstop=4 shiftwidth=4 tabstop=4 expandtab " Indent Settings
+set hlsearch
+set backspace=indent,eol,start "?
+set nu " Line Number
+set history=10000 " Max History
 set laststatus=2
+set incsearch " ?
+set autoread
+set ignorecase smartcase
+
+" auto source ~/.vimrc
+if has("autocmd")
+    autocmd! bufwritepost vimrc source $MYVIMRC
+endif
 
 " set fold
 set foldmethod=syntax
 set foldlevel=100
 set foldcolumn=1
 
-" for nerdtree
-nmap <F2> :NERDTreeToggle  <CR>
-nmap <F4> :YcmCompleter FixIt <CR>
-" for ycm
+" NerdTree
+map <F2> :NERDTreeToggle  <CR>
+" BufExplorer
+map <silent> <F1> :BufExplorer <CR>
+" Tags
+map <silent> <F12> :ts <CR>
+" Ycm
+map <F4> :YcmCompleter GoTo <CR>
+
+" You Complete Me
 let g:ycm_error_symbol = '>'
 let g:ycm_warning_symbol = '*'
-let g:ycm_confirm_extra_conf = 0
-let g:ycm_python_binary_path = '/usr/bin/python3'
-nnoremap <F5> :YcmCompleter GoToImprecise<CR>
-nmap <F12> :YcmDiags<CR>
+" let g:ycm_confirm_extra_conf = 0
+" let g:ycm_python_binary_path = '/usr/bin/python3'
 
+" Vim Commentary
 autocmd FileType python,shell set commentstring=#\ %s
-autocmd FileType mako set cms=##\ %s
+autocmd FileType java,c,cpp set commentstring=//\ %s
+autocmd FileType markdown set commentstring=<!--\ %s\ -->
 
-" for rainbowparentheses
-" let g:rbpt_colorpairs = [
-"    \ ['darkred',     'SeaGreen3'],
-"    \ ['darkmagenta', 'DarkOrchid3'],
-"    \ ['brown',       'firebrick3'],
-"    \ ['gray',        'RoyalBlue3'],
-"    \ ['darkmagenta', 'DarkOrchid3'],
-"    \ ['Darkblue',    'firebrick3'],
-"    \ ['darkgreen',   'RoyalBlue3'],
-"    \ ['darkcyan',    'SeaGreen3'],
-"    \ ['darkred',     'DarkOrchid3'],
-"    \ ['red',         'firebrick3'],
-"    \ ]
-
-" let g:rbpt_max = 8
-" let g:rbpt_loadcmd_toggle = 0
-" au VimEnter * RainbowParenthesesToggle
-" au Syntax * RainbowParenthesesLoadRound
-" au Syntax * RainbowParenthesesLoadSquare
-" au Syntax * RainbowParenthesesLoadBraces
-
-
-func! CompileGcc()
-    exec "w"
-    let compilecmd="!gcc "
-    let compileflag="-std=c11 -O2 -o %< "
-    if search("mpi\.h") != 0
-        let compilecmd = "!mpicc "
-    endif
-    if search("glut\.h") != 0
-        let compileflag .= " -lglut -lGLU -lGL "
-    endif
-    if search("cv\.h") != 0
-        let compileflag .= " -lcv -lhighgui -lcvaux "
-    endif
-    if search("omp\.h") != 0
-        let compileflag .= " -fopenmp "
-    endif
-    if search("math\.h") != 0
-        let compileflag .= " -lm "
-    endif
-    exec compilecmd." % ".compileflag
-endfunc
-func! CompileGpp()
-    exec "w"
-    let compilecmd="!clang++ "
-    let compileflag="-std=c++14 -O2 -o %< "
-    if search("mpi\.h") != 0
-        let compilecmd = "!mpic++ "
-    endif
-    if search("glut\.h") != 0
-        let compileflag .= " -lglut -lGLU -lGL "
-    endif
-    if search("cv\.h") != 0
-        let compileflag .= " -lcv -lhighgui -lcvaux "
-    endif
-    if search("omp\.h") != 0
-        let compileflag .= " -fopenmp "
-    endif
-    if search("math\.h") != 0
-        let compileflag .= " -lm "
-    endif
-    exec compilecmd." % ".compileflag
-endfunc
-
-func! CompileJava()
-    exec "!javac %"
-endfunc
-
-
-func! CompileCode()
-    exec "w"
-    if &filetype == "cpp"
-        exec "call CompileGpp()"
-    elseif &filetype == "c"
-        exec "call CompileGcc()"
-    elseif &filetype == "java"
-        exec "call CompileJava()"
-    endif
-endfunc
-
-func! CompileAndRun()
-    exec "w"
-    exec "call CompileCode()"
-    if search("mpi\.h") != 0
-        exec "!mpirun -np 4 ./%<"
-    elseif &filetype == "cpp"
-        exec "! ./%<"
-    elseif &filetype == "c"
-        exec "! ./%<"
-    elseif &filetype == "python"
-        exec "!python %"
-    elseif &filetype == "ruby"
-        exec "!ruby %"
-    elseif &filetype == "java"
-        exec "!java %<"
-    endif
-endfunc
-
-func! DeleteSpace()
-    :%s/\s\+$//
-endfunc
-
-func! RRText()
-    exec "normal gg=G"
-    exec "% s\/\\s\\+$\/\/g"
-endfunc
-nmap <F6> :call RRText() <CR>
-
-nnoremap <F10> :call CompileCode()<CR>
-nnoremap <F11> :call CompileAndRun()<CR>
+" Airline
+let g:airline#extensions#tabline#enabled = 1
