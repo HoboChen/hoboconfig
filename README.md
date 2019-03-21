@@ -1,2 +1,1 @@
-这是我的配置文档。
-包含了`vim`, `tmux`, `zsh`, `vscode`的配置。
+这是我的`vim`, `tmux`, `zsh`, `vscode`配置。
